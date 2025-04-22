@@ -1,0 +1,389 @@
+{
+  "1": {
+    "библиотека": {
+      "monday": [
+        {
+          "subject": "Литература",
+          "teacher": "Иванова А.П.",
+          "groups": ["9А", "9Б"],
+          "start_time": "08:00",
+          "end_time": "08:40"
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [
+        {
+          "subject": "Внеклассное чтение",
+          "teacher": "Петрова С.И.",
+          "groups": ["5А"],
+          "start_time": "13:00",
+          "end_time": "14:30"
+        }
+      ],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    },
+    "101": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Русский язык",
+          "teacher": "Иванова О.П.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Математика",
+          "teacher": "Сидоров А.В.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "Литература",
+          "teacher": "Иванова О.П.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Окружающий мир",
+          "teacher": "Петрова Е.С.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "Физкультура",
+          "teacher": "Козлов Д.И.",
+          "groups": ["5А"]
+        }
+      ],
+      "tuesday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Английский язык",
+          "teacher": "Смирнова Т.К.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "История",
+          "teacher": "Фролов И.С.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "География",
+          "teacher": "Васильев П.М.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Музыка",
+          "teacher": "Николаева А.А.",
+          "groups": ["5А"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "ИЗО",
+          "teacher": "Белова Л.Н.",
+          "groups": ["5А"]
+        }
+      ],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    },
+    "102": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Физика",
+          "teacher": "Громов С.И.",
+          "groups": ["9Б"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Химия",
+          "teacher": "Соколова М.В.",
+          "groups": ["9Б"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "Биология",
+          "teacher": "Зайцева Е.Р.",
+          "groups": ["9Б"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Информатика",
+          "teacher": "Тихонов А.А.",
+          "groups": ["9Б"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "Астрономия",
+          "teacher": "Орлов Д.В.",
+          "groups": ["9Б"]
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    }
+  },
+  "2": {
+    "201": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Математика",
+          "teacher": "Петрова И.В.",
+          "groups": ["10А", "10К"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Алгебра",
+          "teacher": "Петрова И.В.",
+          "groups": ["10А"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "Геометрия",
+          "teacher": "Смирнов А.П.",
+          "groups": ["10К"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Информатика",
+          "teacher": "Козлов С.В.",
+          "groups": ["9А", "9Б"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "Физика",
+          "teacher": "Васильев Д.И.",
+          "groups": ["11А"]
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [
+        {
+          "start_time": "20:00",
+          "end_time": "21:00",
+          "subject": "Физика",
+          "teacher": "Васильев Д.И.",
+          "groups": [
+            "11А", "11K"
+          ]
+        }
+      ],
+      "saturday": []
+    },
+    "202": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Литература",
+          "teacher": "Иванова О.П.",
+          "groups": ["8А"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Русский язык",
+          "teacher": "Иванова О.П.",
+          "groups": ["8А", "8Б"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "История",
+          "teacher": "Фролов И.С.",
+          "groups": ["8Б"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Обществознание",
+          "teacher": "Фролов И.С.",
+          "groups": ["8А"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "География",
+          "teacher": "Васильев П.М.",
+          "groups": ["8Б"]
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    }
+  },
+  "3": {
+    "301": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Физика",
+          "teacher": "Громов С.И.",
+          "groups": ["11Б"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Химия",
+          "teacher": "Соколова М.В.",
+          "groups": ["10Б"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "Биология",
+          "teacher": "Зайцева Е.Р.",
+          "groups": ["10А"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Астрономия",
+          "teacher": "Орлов Д.В.",
+          "groups": ["11Б"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "Экология",
+          "teacher": "Зайцева Е.Р.",
+          "groups": ["10Б"]
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    },
+    "302": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Информатика",
+          "teacher": "Тихонов А.А.",
+          "groups": ["10К"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Программирование",
+          "teacher": "Тихонов А.А.",
+          "groups": ["10К"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "Робототехника",
+          "teacher": "Тихонов А.А.",
+          "groups": ["10К"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Базы данных",
+          "teacher": "Тихонов А.А.",
+          "groups": ["10К"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "Сети",
+          "teacher": "Тихонов А.А.",
+          "groups": ["10К"]
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    }
+  },
+  "4": {
+    "401": {
+      "monday": [
+        {
+          "start_time": "08:00",
+          "end_time": "08:40",
+          "subject": "Экономика",
+          "teacher": "Кузнецова В.С.",
+          "groups": ["11А"]
+        },
+        {
+          "start_time": "08:45",
+          "end_time": "09:25",
+          "subject": "Право",
+          "teacher": "Кузнецова В.С.",
+          "groups": ["11А"]
+        },
+        {
+          "start_time": "09:30",
+          "end_time": "10:10",
+          "subject": "Маркетинг",
+          "teacher": "Кузнецова В.С.",
+          "groups": ["11А"]
+        },
+        {
+          "start_time": "10:15",
+          "end_time": "10:55",
+          "subject": "Финансовая грамотность",
+          "teacher": "Кузнецова В.С.",
+          "groups": ["11А"]
+        },
+        {
+          "start_time": "11:05",
+          "end_time": "11:45",
+          "subject": "Проектная работа",
+          "teacher": "Кузнецова В.С.",
+          "groups": ["11А"]
+        }
+      ],
+      "tuesday": [],
+      "wednesday": [],
+      "thursday": [],
+      "friday": [],
+      "saturday": []
+    }
+  }
+}
+

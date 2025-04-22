@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Интерактивная карта школы</title>
+  <style>
+    :root {
+      --bg-color: #f5f5f5;
+      --text-color: #333;
+      --card-bg: white;
+      --primary-color: #3498db;
+      --primary-hover: #2980b9;
+      --border-color: #ddd;
+      --room-bg: #ecf0f1;
+      --room-hover: #d6eaf8;
+      --shadow: 0 2px 10px rgba(0,0,0,0.1);
+      --room-size: 80px;
+      --gap-size: 6px;
+      --lesson-active: #ffcccc; /* Пастельно-красный */
+      --lesson-inactive: #ccffcc; /* Пастельно-зеленый */
+      --lesson-active-dark: #4a2a2a;
+      --lesson-inactive-dark: #2a4a2a;
+    }
+
+    .dark-mode {
+      --bg-color: #1a1a1a;
+      --text-color: #f0f0f0;
+      --card-bg: #2d2d2d;
+      --primary-color: #2980b9;
+      --primary-hover: #3498db;
+      --border-color: #444;
+      --room-bg: #3d3d3d;
+      --room-hover: #4a4a4a;
+      --shadow: 0 2px 10px rgba(0,0,0,0.3);
+      --lesson-active: var(--lesson-active-dark);
+      --lesson-inactive: var(--lesson-inactive-dark);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+
+    .floor-map {
+      display: none;
+      gap: var(--gap-size);
+      margin: 0 auto;
+      max-width: 900px;
+      padding: 10px;
+      grid-template-rows: repeat(auto-fit, var(--room-size));
+    }
+
+    .floor-map.active {
+      display: grid;
+    }
+
+    .floor-2 {
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(4, var(--room-size));
+    }
+
+    .floor-3 {
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(4, var(--room-size));
+    }
+
+    .room {
+      border: 2px solid var(--primary-color);
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      min-height: var(--room-size);
+      font-size: 0.9em;
+      box-sizing: border-box;
+      margin: 1px;
+      background-color: var(--lesson-inactive); /* По умолчанию - нет урока */
+    }
+
+    .room:hover {
+      background-color: var(--room-hover);
+      transform: scale(1.03);
+    }
+
+    .room.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .big-room {
+      grid-column: span 3;
+      grid-row: span 2;
+      min-height: calc(var(--room-size) * 2 + var(--gap-size));
+    }
+
+    .double-height {
+      grid-row: span 2;
+      min-height: calc(var(--room-size) * 2 + var(--gap-size));
+    }
+
+    #room-info {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 auto 20px;
+      max-width: 900px;
+      gap: 15px;
+    }
+
+    .search-container {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      text-align: center;
+    }
+
+    #universal-search {
+      width: 300px;
+      padding: 10px;
+      border: 2px solid var(--primary-color);
+      border-radius: 25px;
+      background: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1em;
+      transition: all 0.3s ease;
+    }
+
+    #universal-search:focus {
+      outline: none;
+      box-shadow: 0 0 10px var(--primary-color);
+      width: 350px;
+    }
+
+    .floor-selector,
+    .day-selector {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .floor-selector button,
+    .day-selector button {
+      padding: 8px 15px;
+      border: 2px solid var(--primary-color);
+      border-radius: 5px;
+      background: var(--room-bg);
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    .floor-selector button.active,
+    .day-selector button.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .theme-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+    }
+
+    .room.search-highlight {
+      background-color: #f1c40f !important;
+      color: #2c3e50 !important;
+      box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+      transform: scale(1.05);
+      z-index: 10;
+      position: relative;
+    }
+
+    .search-message {
+      color: #e74c3c;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --room-size: 60px;
+        --gap-size: 4px;
+      }
+      .floor-1 .double-height {
+        grid-row: span 2;
+        min-height: calc(var(--room-size) * 2 + var(--gap-size));
+      }
+      .floor-2,
+      .floor-3 {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(6, var(--room-size));
+      }
+      .floor-4 {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, var(--room-size));
+      }
+      .floor-1 {
+        grid-template-columns: repeat(7, 1fr);
+        grid-template-rows: repeat(4, var(--room-size));
+      }
+
+      .non-clickable {
+        cursor: default !important;
+        background-color: var(--room-bg) !important;
+      }
+
+      .non-clickable:hover {
+        transform: none !important;
+        background-color: var(--room-bg) !important;
+      }
+
+
+      .room {
+        font-size: 0.8em;
+        padding: 4px;
+        min-height: calc(var(--room-size) - 2px);
+      }
+
+      .big-room,
+      .double-height {
+        grid-column: span 2;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      #universal-search {
+        width: 90%;
+        max-width: 400px;
+      }
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 8px 16px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .info-label {
+      color: #888;
+      font-weight: normal;
+    }
+
+    .info-value {
+      font-weight: bold;
+    }
+
+    .info-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: var(--primary-color);
+    }
+    .footer {
+      position: fixed;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: var(--text-color);
+      opacity: 0.3;
+      font-size: 0.9em;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1000;
+    }
+
+  </style>
+</head>
+<body>
+<div class="theme-switcher">
+  <button class="theme-btn" id="theme-btn">🌙</button>
+</div>
+
+<div class="controls">
+  <div class="floor-selector">
+    <button data-floor="1">1 этаж</button>
+    <button class="active" data-floor="2">2 этаж</button>
+    <button data-floor="3">3 этаж</button>
+    <button data-floor="4">4 этаж</button> <!-- Новая кнопка -->
+  </div>
+  <div class="day-selector">
+    <button data-day="monday">Пн</button>
+    <button data-day="tuesday">Вт</button>
+    <button data-day="wednesday">Ср</button>
+    <button data-day="thursday">Чт</button>
+    <button data-day="friday">Пт</button>
+    <button data-day="saturday">Сб</button>
+  </div>
+</div>
+
+<div class="search-container">
+  <input type="text" id="universal-search" placeholder="Поиск по учителю или классу">
+</div>
+
+<!-- Карта 1 этажа -->
+<div class="floor-map floor-1">
+  <!-- Верхний ряд -->
+  <!-- Верхний ряд -->
+  <div class="room" data-room="106" style="grid-column: 1; grid-row: 1;">106</div>
+  <div class="room" data-room="107" style="grid-column: 2; grid-row: 1;">107</div>
+  <div class="room" data-room="108" style="grid-column: 3; grid-row: 1;">108</div>
+  <div class="room" data-room="118" style="grid-column: 4; grid-row: 1;">118</div>
+  <div class="room" data-room="119" style="grid-column: 5; grid-row: 1;">119</div>
+  <div class="room" data-room="библиотека" style="grid-column: 6; grid-row: 1;">Библиотека</div>
+  <!-- Средний ряд -->
+  <div class="room non-clickable double-height" style="grid-column: 5; grid-row: 2 / span 2; background: #008bb1;">Столовая</div>
+  <div class="room" data-room="105" style="grid-column: 1; grid-row: 2;">105</div>
+  <div class="room" data-room="104" style="grid-column: 1; grid-row: 3;">104</div>
+  <div class="room" data-room="120" style="grid-column: 6; grid-row: 2;">120</div>
+  <div class="room" data-room="121" style="grid-column: 6; grid-row: 3;">121</div>
+  <!-- Нижний ряд -->
+  <div class="room" data-room="103" style="grid-column: 1; grid-row: 4;">103</div>
+  <div class="room" data-room="102" style="grid-column: 2; grid-row: 4;">102</div>
+  <div class="room" data-room="101" style="grid-column: 3; grid-row: 4;">101</div>
+  <div class="room" data-room="124" style="grid-column: 4; grid-row: 4;">124</div>
+  <div class="room" data-room="123" style="grid-column: 5; grid-row: 4;">123</div>
+  <div class="room" data-room="122" style="grid-column: 6; grid-row: 4;">122</div>
+
+</div>
+
+<!-- Карта 2 этажа -->
+<div class="floor-map floor-2 active">
+  <div class="room" data-room="206" style="grid-column: 1; grid-row: 1;">206</div>
+  <div class="room" data-room="207" style="grid-column: 2; grid-row: 1;">207</div>
+  <div class="room" data-room="208" style="grid-column: 3; grid-row: 1;">208</div>
+  <div class="room" data-room="211a" style="grid-column: 4; grid-row: 1;">211a</div>
+  <div class="room" data-room="211b" style="grid-column: 5; grid-row: 1;">211b</div>
+  <div class="room" data-room="212" style="grid-column: 6; grid-row: 1;">212</div>
+  <div class="room" data-room="213" style="grid-column: 7; grid-row: 1;">213</div>
+  <div class="room" data-room="214" style="grid-column: 8; grid-row: 1;">214</div>
+  <div class="room" data-room="215" style="grid-column: 9; grid-row: 1;">215</div>
+
+  <div class="room" data-room="205" style="grid-column: 1; grid-row: 2;">205</div>
+  <div class="room double-height" data-room="209" style="grid-column: 3 / span 2; grid-row: 2 / span 2;">209</div>
+  <div class="room" data-room="216" style="grid-column: 9; grid-row: 2;">216</div>
+
+  <div class="room" data-room="204" style="grid-column: 1; grid-row: 3;">204</div>
+  <div class="room double-height" data-room="220" style="grid-column: 6 / span 2; grid-row: 2 / span 2;">220</div>
+  <div class="room" data-room="217" style="grid-column: 9; grid-row: 3;">217</div>
+
+  <div class="room" data-room="203" style="grid-column: 1; grid-row: 4;">203</div>
+  <div class="room" data-room="202" style="grid-column: 2; grid-row: 4;">202</div>
+  <div class="room" data-room="201" style="grid-column: 3; grid-row: 4;">201</div>
+  <div class="room" data-room="224" style="grid-column: 4; grid-row: 4;">224</div>
+  <div class="room" data-room="223" style="grid-column: 5; grid-row: 4;">223</div>
+  <div class="room" data-room="222" style="grid-column: 6; grid-row: 4;">222</div>
+  <div class="room" data-room="221" style="grid-column: 7; grid-row: 4;">221</div>
+  <div class="room" data-room="219" style="grid-column: 8; grid-row: 4;">219</div>
+  <div class="room" data-room="218" style="grid-column: 9; grid-row: 4;">218</div>
+</div>
+
+<!-- Карта 3 этажа -->
+<div class="floor-map floor-3">
+  <div class="room" data-room="306" style="grid-column: 1; grid-row: 1;">306</div>
+  <div class="room" data-room="307" style="grid-column: 2; grid-row: 1;">307</div>
+  <div class="room" data-room="308" style="grid-column: 3; grid-row: 1;">308</div>
+  <div class="room" data-room="310" style="grid-column: 4; grid-row: 1;">310</div>
+  <div class="room" data-room="311" style="grid-column: 5; grid-row: 1;">311</div>
+  <div class="room" data-room="312" style="grid-column: 6; grid-row: 1;">312</div>
+  <div class="room" data-room="313" style="grid-column: 7; grid-row: 1;">313</div>
+
+  <div class="room" data-room="305" style="grid-column: 1; grid-row: 2;">305</div>
+  <div class="room big-room" data-room="309" style="grid-column: 3 / span 3; grid-row: 2 / span 2;">309 (а-г)</div>
+  <div class="room" data-room="314" style="grid-column: 7; grid-row: 2  / span 2;">314</div>
+
+  <div class="room" data-room="304" style="grid-column: 1; grid-row: 3;">304</div>
+
+  <div class="room" data-room="303" style="grid-column: 1; grid-row: 4;">303</div>
+  <div class="room" data-room="302" style="grid-column: 2; grid-row: 4;">302</div>
+  <div class="room" data-room="301" style="grid-column: 3; grid-row: 4;">301</div>
+  <div class="room" data-room="322" style="grid-column: 4; grid-row: 4;">322</div>
+  <div class="room" data-room="321" style="grid-column: 5; grid-row: 4;">321</div>
+  <div class="room" data-room="318" style="grid-column: 6; grid-row: 4;">318</div>
+  <div class="room" data-room="316" style="grid-column: 7; grid-row: 4;">316</div>
+</div>
+
+<div class="floor-map floor-4">
+  <div class="room" data-room="401" style="grid-column: 1; grid-row: 1;">401</div>
+  <div class="room" data-room="402" style="grid-column: 2; grid-row: 1;">402</div>
+</div>
+
+<div id="room-info">
+  <div class="info-title">Выберите кабинет</div>
+  <p>Нажмите на любой кабинет, чтобы увидеть текущее расписание</p>
+
+  <div class="footer">
+    developed by oceanxgod
+  </div>
+</div>
+
+<script>
+  let roomsData = {};
+  let currentDay = 'monday';
+  let currentFloor = 2;
+  let currentRoom = null;
+  let searchTimeout = null;
+
+  async function loadData() {
+    try {
+      const response = await fetch('data.json');
+      if (!response.ok) throw new Error('Ошибка загрузки');
+      const rawData = await response.json();
+
+      // Преобразование структуры данных
+      roomsData = {};
+      for (const floor in rawData) {
+        roomsData[floor] = {};
+        for (const room in rawData[floor]) {
+          roomsData[floor][room] = {};
+          for (const day in rawData[floor][room]) {
+            roomsData[floor][room][day] = rawData[floor][room][day].map(lesson => ({
+              ...lesson,
+              time: `${lesson.start_time} - ${lesson.end_time}`
+            }));
+          }
+        }
+      }
+
+      initEventListeners();
+      updateRoomStatus();
+      updateDaySelector();
+    } catch (error) {
+      console.error('Ошибка:', error);
+      showMessage('Не удалось загрузить расписание', true);
+    }
+  }
+
+  function getCurrentDay() {
+    return 'monday';
+  }
+
+  function getDayName(day) {
+    const days = {
+      'monday': 'Понедельник',
+      'tuesday': 'Вторник',
+      'wednesday': 'Среда',
+      'thursday': 'Четверг',
+      'friday': 'Пятница',
+      'saturday': 'Суббота'
+    };
+    return days[day] || day;
+  }
+
+
+  function initEventListeners() {
+    document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+
+    document.querySelectorAll('.floor-selector button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchFloor(btn.dataset.floor); // Правильное использование
+      });
+    });
+
+    document.querySelectorAll('.day-selector button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentDay = btn.dataset.day;
+        document.querySelectorAll('.day-selector button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateRoomStatus();
+        if (currentRoom) showRoomInfo(currentRoom);
+        handleUniversalSearch();
+      });
+    });
+
+    document.querySelectorAll('.room').forEach(room => {
+      room.addEventListener('click', handleRoomClick);
+    });
+
+    document.getElementById('universal-search').addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(handleUniversalSearch, 300);
+    });
+  }
+
+  async function handleUniversalSearch() {
+    const searchInput = document.getElementById('universal-search').value.trim().toLowerCase();
+    if (!searchInput) {
+      document.querySelectorAll('.room').forEach(r => r.classList.remove('search-highlight'));
+      document.getElementById('room-info').innerHTML = `
+            <div class="info-title">Выберите кабинет</div>
+            <p>Нажмите на любой кабинет, чтобы увидеть текущее расписание</p>
+        `;
+      return;
+    }
+
+    let foundRooms = [];
+    let foundTeachers = [];
+    let foundGroups = [];
+
+    // Ищем во всех этажах и кабинетах
+    for (const floor in roomsData) {
+      for (const room in roomsData[floor]) {
+        const schedule = roomsData[floor][room]?.[currentDay] || [];
+
+        // Проверяем каждое занятие в кабинете
+        for (const lesson of schedule) {
+          const teacherMatch = lesson.teacher?.toLowerCase().includes(searchInput);
+          const groupMatch = lesson.groups?.some(group =>
+                  group.toLowerCase().includes(searchInput)
+          );
+
+          if (teacherMatch || groupMatch) {
+            foundRooms.push({
+              room,
+              floor: parseInt(floor),
+              teacher: lesson.teacher,
+              groups: lesson.groups,
+              subject: lesson.subject,
+              time: lesson.time
+            });
+
+            if (teacherMatch) foundTeachers.push(lesson.teacher);
+            if (groupMatch) foundGroups.push(...lesson.groups);
+          }
+        }
+      }
+    }
+
+    // Убираем дубликаты
+    foundTeachers = [...new Set(foundTeachers)];
+    foundGroups = [...new Set(foundGroups)];
+
+    // Обработка результатов поиска
+    if (foundRooms.length > 0) {
+      // Показываем первый найденный кабинет
+      const target = foundRooms[0];
+      if (currentFloor !== target.floor) {
+        switchFloor(target.floor);
+      }
+
+      setTimeout(() => {
+        const roomElement = document.querySelector(`.room[data-room="${target.room}"]`);
+        if (roomElement) {
+          document.querySelectorAll('.room').forEach(r => r.classList.remove('search-highlight'));
+          roomElement.classList.add('search-highlight');
+          roomElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+          });
+
+          // Показываем информацию о кабинете
+          const infoElement = document.getElementById('room-info');
+          infoElement.innerHTML = `
+                    <div class="info-title">Результат поиска: ${searchInput}</div>
+                    <div class="info-row">
+                        <div class="info-label">Кабинет:</div>
+                        <div class="info-value">${target.room} (${target.floor} этаж)</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Учитель:</div>
+                        <div class="info-value">${target.teacher || 'Не указан'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Класс:</div>
+                        <div class="info-value">${target.groups?.join(', ') || 'Не указан'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Предмет:</div>
+                        <div class="info-value">${target.subject}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Время:</div>
+                        <div class="info-value">${target.time}</div>
+                    </div>
+                    ${foundRooms.length > 1 ?
+                  `<div class="info-row">
+                            <div class="info-label">Другие результаты:</div>
+                            <div class="info-value">${foundRooms.slice(1).map(r =>
+                          `${r.room} (${r.floor} этаж) - ${r.teacher}`).join(', ')}</div>
+                        </div>` : ''
+          }
+                `;
+        }
+      }, 300);
+    } else {
+      showMessage(
+              `Ничего не найдено по запросу "${searchInput}". Проверьте, правильно ли указаны:
+            <br>- Фамилия учителя (например, "Петрова")
+            <br>- Класс (например, "10А")`,
+              true
+      );
+    }
+  }
+
+
+  async function searchByRoom(roomNumber) {
+    let targetFloor = null;
+    for (const floor in roomsData) {
+      if (roomsData[floor].hasOwnProperty(roomNumber)) {
+        targetFloor = parseInt(floor);
+        break;
+      }
+    }
+
+    if (!targetFloor) return false;
+
+    if (currentFloor !== targetFloor) {
+      switchFloor(targetFloor);
+    }
+
+    const schedule = roomsData[targetFloor][roomNumber]?.[currentDay] || [];
+    const hasLesson = schedule.some(lesson => isLessonCurrent(lesson.time));
+
+    const roomElement = document.querySelector(`.room[data-room="${roomNumber}"]`);
+    if (roomElement) {
+      roomElement.classList.add('search-highlight');
+      roomElement.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+      if (hasLesson) handleRoomClick({target: roomElement});
+    }
+
+    return true;
+  }
+
+  async function searchByTeacher(teacher) {
+    let targetRoom = null;
+    let targetFloor = null;
+
+    for (const floor in roomsData) {
+      for (const room in roomsData[floor]) {
+        const schedule = roomsData[floor][room]?.[currentDay] || [];
+        const hasLesson = schedule.some(lesson =>
+                lesson.teacher?.toLowerCase().includes(teacher) &&
+                isLessonCurrent(lesson.time)
+        );
+
+        if (hasLesson) {
+          targetRoom = room;
+          targetFloor = parseInt(floor);
+          break;
+        }
+      }
+      if (targetRoom) break;
+    }
+
+    if (!targetRoom || !targetFloor) return false;
+
+    if (currentFloor !== targetFloor) {
+      switchFloor(targetFloor);
+    }
+
+    setTimeout(() => {
+      const roomElement = document.querySelector(`.room[data-room="${targetRoom}"]`);
+      if (roomElement) {
+        document.querySelectorAll('.room').forEach(r => r.classList.remove('search-highlight'));
+        roomElement.classList.add('search-highlight');
+        roomElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'center'
+        });
+        handleRoomClick({target: roomElement});
+      } else {
+        showMessage(`Кабинет ${targetRoom} не найден на этаже ${targetFloor}`, true);
+      }
+    }, 300);
+    return true;
+  }
+  function isLessonCurrent(lessonTime) {
+    const [start, end] = lessonTime.split(' - ');
+    const fixedHours = 8;
+    const fixedMinutes = 30;
+    const current = fixedHours * 60 + fixedMinutes;
+    return current >= timeToMinutes(start) && current <= timeToMinutes(end);
+  }
+  function timeToMinutes(time) {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+    document.getElementById('theme-btn').textContent =
+            document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    updateRoomStatus();
+  }
+
+  function switchFloor(floor) {
+    currentFloor = parseInt(floor);
+    document.querySelectorAll('.floor-map').forEach(map => map.classList.remove('active'));
+    document.querySelector(`.floor-${floor}`).classList.add('active');
+    document.querySelectorAll('.floor-selector button').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.floor-selector button[data-floor="${floor}"]`).classList.add('active');
+    currentRoom = null;
+    document.querySelectorAll('.room').forEach(r => r.classList.remove('active', 'search-highlight'));
+    document.getElementById('room-info').innerHTML = `
+            <div class="info-title">Выберите кабинет</div>
+            <p>Нажмите на любой кабинет, чтобы увидеть текущее расписание</p>
+        `;
+    updateRoomStatus();
+  }
+
+  function handleRoomClick(event) {
+    if(event.target.classList.contains('non-clickable')) return;
+    document.querySelectorAll('.room').forEach(r => r.classList.remove('active'));
+    event.target.classList.add('active');
+    currentRoom = event.target.dataset.room;
+    showRoomInfo(currentRoom);
+  }
+  function updateRoomStatus() {
+    document.querySelectorAll('.room').forEach(roomElement => {
+      if(roomElement.classList.contains('non-clickable')) return;
+
+      const roomNumber = roomElement.dataset.room;
+      const schedule = roomsData[currentFloor]?.[roomNumber]?.[currentDay] || [];
+      const hasLesson = schedule.some(lesson => isLessonCurrent(lesson.time));
+
+      roomElement.style.backgroundColor = hasLesson
+              ? 'var(--lesson-active)'
+              : 'var(--lesson-inactive)';
+    });
+  }
+
+  function showRoomInfo(roomNumber) {
+    const infoElement = document.getElementById('room-info');
+    const schedule = roomsData[currentFloor]?.[roomNumber]?.[currentDay] || [];
+    const currentLesson = getCurrentLesson(schedule);
+
+    let html = `
+      <div class="info-title">Кабинет ${roomNumber}</div>
+      <div class="info-grid">
+          <div class="info-label">Состояние:</div>
+          <div class="info-value" style="color:${currentLesson ? '#e74c3c' : '#2ecc71'}">
+            ${currentLesson ? 'Идёт урок' : 'Свободен'}
+          </div>
+  `;
+    if (currentLesson) {
+      html += `
+            <div class="info-label">Урок:</div>
+            <div class="info-value">${currentLesson.subject}</div>
+            <div class="info-label">Учитель:</div>
+            <div class="info-value">${currentLesson.teacher || 'Не указан'}</div>
+            <div class="info-label">Классы:</div>
+            <div class="info-value">${currentLesson.groups ? currentLesson.groups.join(', ') : 'Не указаны'}</div>
+            <div class="info-label">Время:</div>
+            <div class="info-value">${currentLesson.time}</div>
+        `;
+    }
+
+    html += `</div>`; // Закрываем info-grid
+
+    infoElement.innerHTML = html;
+  }
+
+  function getCurrentLesson(schedule) {
+    return schedule.find(lesson => isLessonCurrent(lesson.time));
+  }
+
+  function showMessage(message, isError = false) {
+    const infoElement = document.getElementById('room-info');
+    infoElement.innerHTML = `
+            <div class="info-title">Результат поиска</div>
+            <div class="search-message">${message}</div>
+        `;
+  }
+
+  function updateDaySelector() {
+    currentDay = getCurrentDay();
+    document.querySelectorAll('.day-selector button').forEach(btn => {
+      if (btn.dataset.day === currentDay) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  // Инициализация при загрузке
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('theme-btn').textContent = '☀️';
+    }
+    loadData();
+  });
+</script>
+</body>
+</html>
