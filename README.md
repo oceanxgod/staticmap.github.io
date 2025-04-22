@@ -1,0 +1,1 @@
+# staticmap.github.io
